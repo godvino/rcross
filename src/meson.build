@@ -18,18 +18,25 @@ configure_file(
     configuration: conf
 )
 
-buildtype = 'native'
-if meson.is_cross_build()
-  buildtype = 'cross'
-endif
-
+target = 'release'
 if get_option('debug')
   target = 'debug'
-else
-  target = 'release'
 endif
 
 cargo_wrapper = find_program(join_paths(meson.project_source_root(),'build-aux/cargo_wrapper.py'))
+
+
+devenv = environment()
+devenv.set('CARGO_HOME', meson.global_build_root() / 'cargo-home')
+devenv.set('CARGO_TARGET_DIR', meson.global_build_root() / 'target')
+devenv.set('CONFIG_IN', meson.current_build_dir() / 'config.rs')
+devenv.set('GRESOURCE_IN', meson.current_build_dir() / 'rcross.gresource')
+devenv.append('PKG_CONFIG_PATH', meson.global_build_root() / 'meson-uninstalled')
+if meson.is_cross_build()
+  devenv.set('PKG_CONFIG_ALLOW_CROSS', '1')
+endif
+
+meson.add_devenv(devenv)
 
 rcross = custom_target(
   build_by_default: true,
@@ -39,14 +46,12 @@ rcross = custom_target(
   install: true,
   install_dir: get_option('bindir'),
   install_tag: 'runtime',
-#  depends: gio_dep,
+  env: devenv,
   command: [cargo_wrapper,
   '--build-dir', meson.current_build_dir(),
   '--source-dir', meson.project_source_root(),
   '--root-dir', meson.global_build_root(),
   '--build-type', target,
-  '--buildtype', buildtype,
   '--project-name', meson.project_name(),
   '--exe-suffix', exe_suffix
   ])
-

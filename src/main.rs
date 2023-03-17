@@ -19,15 +19,14 @@
  */
 
 mod application;
-//mod config;
 mod window;
 
 use self::application::RcrossApplication;
 use self::window::RcrossWindow;
 
-include!(concat!(env!("INCLUDE_DIR"), "config.rs"));
+include!(env!("CONFIG_IN"));
 //use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
-use gtk::gio;
+use gtk::{gio, glib};
 use gtk::prelude::*;
 
 fn main() {
@@ -38,7 +37,9 @@ fn main() {
   //  textdomain(GETTEXT_PACKAGE).expect("Unable to switch to the text domain");
 
     // Load resources
-    gio::resources_register_include_impl(include_bytes!(concat!(env!("INCLUDE_DIR"), "rcross.gresource"))).unwrap();
+    let bytes = glib::Bytes::from_static(include_bytes!(env!("GRESOURCE_IN")));
+    let resource = gio::Resource::from_data(&bytes).unwrap();
+    gio::resources_register(&resource);
 
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
