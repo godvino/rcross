@@ -41,7 +41,7 @@ mod imp {
     impl ObjectImpl for RcrossApplication {
         fn constructed(&self) {
             self.parent_constructed();
-            let obj = self.instance();
+            let obj = self.obj();
             obj.setup_gactions();
             obj.set_accels_for_action("app.quit", &["<primary>q"]);
         }
@@ -53,7 +53,7 @@ mod imp {
         // tries to launch a "second instance" of the application. When they try
         // to do that, we'll just present any existing window.
         fn activate(&self) {
-            let application = self.instance();
+            let application = self.obj();
             // Get the current window or create one if necessary
             let window = if let Some(window) = application.active_window() {
                 window
@@ -79,7 +79,10 @@ glib::wrapper! {
 
 impl RcrossApplication {
     pub fn new(application_id: &str, flags: &gio::ApplicationFlags) -> Self {
-        glib::Object::new(&[("application-id", &application_id), ("flags", flags)])
+        glib::Object::builder()
+            .property("application-id", &application_id)
+            .property("flags", flags)
+            .build()
     }
 
     fn setup_gactions(&self) {
@@ -89,7 +92,7 @@ impl RcrossApplication {
         let about_action = gio::ActionEntry::builder("about")
             .activate(move |app: &Self, _, _| app.show_about())
             .build();
-        self.add_action_entries([quit_action, about_action]).unwrap();
+        self.add_action_entries([quit_action, about_action]);
     }
 
     fn show_about(&self) {
@@ -100,7 +103,7 @@ impl RcrossApplication {
             .application_icon("org.gnome.Example")
             .developer_name("godvino")
             .version(VERSION)
-            .developers(vec!["godvino".into()])
+            .developers(["godvino"])
             .copyright("© 2023 godvino")
             .build();
 

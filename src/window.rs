@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-use gtk::prelude::*;
+//use gtk::prelude::*;
 use adw::subclass::prelude::*;
 use gtk::{gio, glib};
 
@@ -64,6 +64,8 @@ glib::wrapper! {
 
 impl RcrossWindow {
     pub fn new<P: glib::IsA<gtk::Application>>(application: &P) -> Self {
-        glib::Object::new(&[("application", application)])
+        glib::Object::builder()
+                    .property("application", application)
+                    .build()
     }
 }

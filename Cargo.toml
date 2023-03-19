@@ -6,12 +6,13 @@ edition = "2021"
 [profile.release]
 strip = true
 lto = true
+codegen-units = 1
 
 [dependencies]
 #gettext-rs = { version = "0.7", features = ["gettext-system"] }
-gtk = { version = "0.5", package = "gtk4" }
+gtk = { version = "0.6", package = "gtk4" }
 
 [dependencies.adw]
 package = "libadwaita"
-version = "0.2"
+version = "0.3"
 features = ["v1_2"]
